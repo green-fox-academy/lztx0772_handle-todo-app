@@ -15,23 +15,30 @@ namespace TODO
             this.tasks = new List<Task>();
         }
 
-        internal void ShowList()
+        public void ShowList()
         {
-            for(int i=0; i < tasks.Count; i++)
+            if (tasks.Count == 0)
             {
-                Console.Write($"{i+1} - [{(tasks[i].IsChecked ? 'x': ' ')}] {tasks[i].Desciption}\n");
+                Console.WriteLine("No todos for today! :)");
+                return;
+            }
 
+            for (int i = 0; i < tasks.Count; i++)
+            {
+                Console.Write($"{i + 1} - [{(tasks[i].IsChecked ? 'x' : ' ')}] {tasks[i].Desciption}\n");
             }
         }
 
-        internal void CheckList(string v)
+        public void CheckList(string v)
         {
-            if (!int.TryParse(v, out var ck_index))
-            {
-                throw new ArgumentException("Invalid index.");
-            }
             try
             {
+                if (!int.TryParse(v, out var ck_index))
+                    throw new ArgumentException("Unable to remove: index is not a number");
+
+                if (ck_index >= tasks.Count)
+                    throw new ArgumentException("Unable to remove: index is out of bound");
+
                 tasks[ck_index - 1].IsChecked = true;
                 // rewrite whole file?
                 modified_tasks();
@@ -41,25 +48,25 @@ namespace TODO
             {
                 Console.WriteLine($"Invalid index : {e}");
             }
-
         }
 
-        internal void RemoveList(string v)
+        public void RemoveList(string v)
         {
-            if(!int.TryParse(v, out var rm_index))
-            {
-                throw new ArgumentException("Invalid index.");
-            }
-
             try
             {
+                if (!int.TryParse(v, out var rm_index))
+                    throw new ArgumentException("Unable to remove: index is not a number");
+
+                if (rm_index >= tasks.Count)
+                    throw new ArgumentException("Unable to remove: index is out of bound");
+
                 tasks.RemoveAt(rm_index - 1);
                 modified_tasks();
-                ShowList(); 
+                ShowList();
             }
-            catch(Exception e)
+            catch (Exception e)
             {
-                Console.WriteLine($"Invalid index : {e}");
+                Console.WriteLine(e);
             }
         }
 
@@ -67,13 +74,13 @@ namespace TODO
         {
             using (StreamWriter writer = new StreamWriter(TasksListName, false))
             {
-                foreach(Task item in tasks)
+                foreach (Task item in tasks)
                     writer.WriteLine($"{(item.IsChecked ? 'c' : 'n')} {item.Desciption}");
             }
         }
 
-        internal void AddList(string description)
-        {   
+        public void AddList(string description)
+        {
             Task new_task = new Task(description);
             tasks.Add(new_task);
             ShowList();
@@ -82,18 +89,19 @@ namespace TODO
 
         private void WrtieTofile(Task new_task)
         {
-            using (StreamWriter writer = new StreamWriter(TasksListName,true)) {
+            using (StreamWriter writer = new StreamWriter(TasksListName, true))
+            {
                 writer.WriteLine($"{(new_task.IsChecked ? 'c' : 'n')} {new_task.Desciption}");
             }
         }
 
-        internal void LoadTasks()
+        public void LoadTasks()
         {
             try
             {
                 StreamReader reader = new StreamReader(TasksListName);
-                
-                while(true)
+
+                while (true)
                 {
                     string line = reader.ReadLine();
                     if (line == null) break;
@@ -116,6 +124,17 @@ namespace TODO
             {
                 Console.WriteLine("Something is wrong in your Repo.");
             }
+        }
+
+        public void PrintUsage()
+        {
+            Console.WriteLine("Command Line Todo application");
+            Console.WriteLine("=============================\n");
+
+            Console.WriteLine("\t-l   Lists all the tasks");
+            Console.WriteLine("\t-a   Adds a new task");
+            Console.WriteLine("\t-r   Removes an task");
+            Console.WriteLine("\t-c   Completes an task");
         }
     }
 }

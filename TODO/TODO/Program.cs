@@ -13,12 +13,25 @@ namespace TODO
             switch (args[0][1])
             {
                 case 'l': board.ShowList(); break;
-                case 'a': board.AddList(string.Join(" ", args, 1, args.GetLength(0) - 1)); break;
-                case 'r': board.RemoveList(args[1]); break;
-                case 'c': board.CheckList(args[1]); break;
-                default: throw (new ArgumentException(args[0]));
+                case 'a':
+                    if (args.Length > 2) board.AddList(string.Join(" ", args, 1, args.GetLength(0) - 1));
+                    else throw new ArgumentException("Unable to add: no task provided");
+                    break;
+                case 'r':
+                    if (args.Length >= 2) board.RemoveList(args[1]);
+                    else throw new ArgumentException("Unable to remove: no index provided");
+                    break;
+                case 'c':
+                    if (args.Length >= 2) board.CheckList(args[1]);
+                    else throw new ArgumentException("Unable to remove: no index provided");
+                    break;
+                    
+                default: board.PrintUsage();
+                    break;
             }
-            
+
+            Console.ReadLine();
         }
     }
 }
+
